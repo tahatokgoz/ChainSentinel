@@ -1,0 +1,9 @@
+{
+    "mcpServers": {
+        "chainsentinel": {
+            "command": "python",
+            "args": ["mcp_server/server.py"],
+            "cwd": "C:\\Users\\Taha\\Projects\\ChainSentinel"
+        }
+    }
+}

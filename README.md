@@ -1,0 +1,121 @@
+# ChainSentinel ♞
+
+**Warehouse Security Testing Platform** — *by ShahMat Sec*
+
+ChainSentinel is a specialized penetration testing tool designed for warehouse and supply chain systems. It automatically discovers devices on your network, runs security tests, and generates AI-powered analysis reports.
+
+![Python](https://img.shields.io/badge/Python-3.11+-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
+## Features
+
+- **Automatic Network Discovery** — Scans your LAN, discovers devices, and classifies them (IoT, Web Portal, API)
+- **One-Click Pentesting** — Run security tests on all discovered devices with a single click
+- **18 Security Checks** — SQL Injection, Command Injection, IDOR, Brute Force, Default Credentials, Session Vulnerabilities, and more
+- **AI-Powered Analysis** — Supports Claude, GPT, Gemini, and Ollama for intelligent vulnerability analysis
+- **Attack Chain Detection** — AI identifies how vulnerabilities can be chained together
+- **MITRE ATT&CK Mapping** — Automatically maps findings to the MITRE framework
+- **PDF Reports** — Generate professional security reports with one click
+- **MCP Server** — Integrate with Claude Desktop for conversational security testing
+- **Advanced Scanning** — Port scanning and manual pentesting for IT professionals
+
+## Quick Start
+
+### Prerequisites
+
+- Python 3.11+
+- Nmap ([download](https://nmap.org/download.html))
+
+### Installation
+```bash
+git clone https://github.com/yourusername/ChainSentinel.git
+cd ChainSentinel
+pip install -r requirements.txt
+```
+
+### Run
+```bash
+uvicorn backend.main:app --host 0.0.0.0 --port 9000
+```
+
+Open `http://localhost:9000` in your browser.
+
+### Usage
+
+1. Click **Scan Network** to discover devices on your network
+2. Click **Run Pentest** on any discovered device or **Pentest All** for all devices
+3. View findings in the dashboard
+4. Click **AI** to get AI-powered analysis (requires API key setup in AI Settings)
+5. Click **Report** to download a PDF report
+
+## AI Integration
+
+ChainSentinel supports multiple AI providers for vulnerability analysis:
+
+| Provider | Type | API Key Required |
+|----------|------|-----------------|
+| Ollama | Free (Offline) | No |
+| Claude (Anthropic) | Paid (Recommended) | Yes |
+| GPT (OpenAI) | Paid | Yes |
+| Gemini (Google) | Free Tier Available | Yes |
+
+Configure your preferred AI provider in **AI Settings** from the dashboard.
+
+## MCP Server (Claude Desktop)
+
+ChainSentinel includes an MCP server for Claude Desktop integration. See [README_MCP.md](README_MCP.md) for setup instructions.
+
+## Security Checks
+
+### IoT Device (6 checks)
+- Open Ports Detection
+- Default Credentials (HTTP)
+- Default Credentials (Telnet)
+- Unauthenticated Sensor Data Access
+- Device Information Disclosure
+- Command Injection
+
+### Web Portal (6 checks)
+- SQL Injection (Authentication Bypass)
+- Brute Force Protection
+- Weak Session Tokens
+- Session Fixation
+- Debug Mode / Information Disclosure
+- Backup Admin Credentials
+
+### API (6 checks)
+- SQL Injection (Search)
+- IDOR (Unauthorized Access)
+- API Key in URL
+- Rate Limiting
+- Mass Assignment
+- Input Validation
+
+## Tech Stack
+
+- **Backend:** Python, FastAPI, SQLAlchemy, SQLite
+- **Frontend:** HTML, Tailwind CSS, Chart.js
+- **Scanning:** Nmap, Custom Python scanners
+- **AI:** Anthropic Claude, OpenAI GPT, Google Gemini, Ollama
+- **Reporting:** ReportLab (PDF)
+
+## Screenshots
+
+*Coming soon*
+
+## Disclaimer
+
+⚠️ **This tool is intended for authorized security testing only.** Only use ChainSentinel on systems you own or have explicit permission to test. Unauthorized access to computer systems is illegal.
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.
+
+## Authors
+
+Developed by **ShahMat Sec** ♞
+
+---
+
+*ChainSentinel — Protecting your supply chain, one vulnerability at a time.*
