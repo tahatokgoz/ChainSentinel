@@ -62,6 +62,10 @@ ChainSentinel supports multiple AI providers for vulnerability analysis:
 
 Configure your preferred AI provider in **AI Settings** from the dashboard.
 
+## Documentation
+
+For detailed setup instructions, usage guide, and complete feature reference, see the [ChainSentinel User Guide](docs/ChainSentinel_User_Guide_v1.0.docx).
+
 ## MCP Server (Claude Desktop)
 
 ChainSentinel includes an MCP server for Claude Desktop integration. See [README_MCP.md](README_MCP.md) for setup instructions.
