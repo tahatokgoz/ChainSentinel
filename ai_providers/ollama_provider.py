@@ -1,4 +1,3 @@
-import json
 import logging
 import requests
 from ai_providers.base import BaseAIProvider
@@ -36,16 +35,14 @@ class OllamaProvider(BaseAIProvider):
             return False
 
     def analyze_findings(self, findings, scan_info):
-        from ai_providers.anthropic import AnthropicProvider
-        ap = AnthropicProvider.__new__(AnthropicProvider)
-        prompt = ap._build_prompt(findings, scan_info)
+        prompt = self._build_prompt(findings, scan_info)
         try:
             resp = requests.post(f"{self.base_url}/api/generate",
                 json={"model": self.model, "prompt": prompt, "stream": False}, timeout=120)
             if resp.status_code != 200:
                 return {"error": f"Ollama error: {resp.status_code}"}
             content = resp.json().get("response", "")
-            return ap._parse_response(content)
+            return self._parse_response(content)
         except requests.ConnectionError:
             return {"error": "Ollama is not running. Please start Ollama."}
         except Exception as e:

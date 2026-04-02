@@ -1,4 +1,3 @@
-import json
 import logging
 import requests
 from ai_providers.base import BaseAIProvider
@@ -41,9 +40,7 @@ class OpenAIProvider(BaseAIProvider):
             return False
 
     def analyze_findings(self, findings, scan_info):
-        from ai_providers.anthropic import AnthropicProvider
-        ap = AnthropicProvider.__new__(AnthropicProvider)
-        prompt = ap._build_prompt(findings, scan_info)
+        prompt = self._build_prompt(findings, scan_info)
         try:
             resp = requests.post(self.base_url, headers={
                 "Authorization": f"Bearer {self.api_key}",
@@ -53,6 +50,6 @@ class OpenAIProvider(BaseAIProvider):
             if resp.status_code != 200:
                 return {"error": f"API error: {resp.status_code}"}
             content = resp.json()["choices"][0]["message"]["content"]
-            return ap._parse_response(content)
+            return self._parse_response(content)
         except Exception as e:
             return {"error": str(e)}

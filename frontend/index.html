@@ -380,9 +380,9 @@
                 status.classList.add('hidden');
                 results.classList.remove('hidden');
 
-                const iotCount = data.hosts.filter(h => h.category === 'iot_device').length;
-                const portalCount = data.hosts.filter(h => h.category === 'web_portal').length;
-                const apiCount = data.hosts.filter(h => h.category === 'api_service').length;
+                const iotCount = data.hosts.filter(h => h.category.includes('iot_device')).length;
+                const portalCount = data.hosts.filter(h => h.category.includes('web_portal')).length;
+                const apiCount = data.hosts.filter(h => h.category.includes('api_service')).length;
                 const otherCount = data.hosts.filter(h => h.category === 'unknown').length;
 
                 document.getElementById('discovery-summary').innerHTML =
@@ -416,7 +416,10 @@
             };
 
             for (const host of hosts) {
-                const config = categoryConfig[host.category] || categoryConfig['unknown'];
+                const cats = host.category.split(',');
+                const configs = cats.map(c => categoryConfig[c.trim()]).filter(Boolean);
+                if (configs.length === 0) configs.push(categoryConfig['unknown']);
+                const config = configs[0];
                 const ports = host.ports.map(p => `<span class="bg-gray-700 px-1.5 py-0.5 rounded text-xs">${p.port}/${p.service}</span>`).join(' ');
                 const hasTargetPorts = host.ports.some(p => !([53, 135, 139, 445, 902, 912].includes(p.port)));
 
@@ -427,10 +430,9 @@
                 card.innerHTML = `
                     <div class="flex items-start justify-between mb-2">
                         <div>
-                            <span class="text-lg">${config.icon}</span>
-                            <span class="ml-1 px-2 py-0.5 rounded text-xs ${config.badge}">${config.label}</span>
+                            ${configs.map(c => `<span class="text-lg">${c.icon}</span><span class="ml-1 px-2 py-0.5 rounded text-xs ${c.badge}">${c.label}</span>`).join(' ')}
                         </div>
-                        ${hasTargetPorts
+                        ${(!host.category.includes('unknown') || hasTargetPorts)
                             ? `<button onclick="autoPentest('${host.ip}', ${JSON.stringify(host.ports).replace(/"/g, '&quot;')})" class="btn-success px-3 py-1.5 rounded-lg text-xs font-bold text-white">⚡ Run Pentest</button>`
                             : '<span class="text-gray-500 text-xs">No suitable ports</span>'
                         }
@@ -455,7 +457,7 @@
             event.target.classList.add('active-filter');
 
             document.querySelectorAll('.discovery-item').forEach(item => {
-                if (category === 'all' || item.dataset.category === category) {
+                if (category === 'all' || item.dataset.category.includes(category)) {
                     item.style.display = '';
                 } else {
                     item.style.display = 'none';

@@ -8,6 +8,8 @@ from backend.models import Scan, Finding
 from scanners.iot_scanner import IoTScanner
 from scanners.portal_scanner import PortalScanner
 from scanners.api_scanner import APIScanner
+from scanners.mqtt_scanner import MQTTScanner
+from scanners.protocol_scanner import ProtocolScanner
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +60,23 @@ def run_scan(scan_id: int, db: Session):
             return
 
         findings = scanner.run()
+
+        # Additionally run protocol-specific scans for all scan types
+        try:
+            mqtt = MQTTScanner(target_host=scan.target_host, target_port=scan.target_port)
+            mqtt_findings = mqtt.run()
+            for f in mqtt_findings:
+                findings.append(f)
+        except Exception as e:
+            logger.warning(f"MQTT scan failed: {e}")
+
+        try:
+            proto = ProtocolScanner(target_host=scan.target_host)
+            proto_findings = proto.run()
+            for f in proto_findings:
+                findings.append(f)
+        except Exception as e:
+            logger.warning(f"Protocol scan failed: {e}")
 
         for f in findings:
             finding = Finding(

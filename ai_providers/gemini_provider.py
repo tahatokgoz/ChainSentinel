@@ -1,4 +1,3 @@
-import json
 import logging
 import requests
 from ai_providers.base import BaseAIProvider
@@ -39,9 +38,7 @@ class GeminiProvider(BaseAIProvider):
             return False
 
     def analyze_findings(self, findings, scan_info):
-        from ai_providers.anthropic import AnthropicProvider
-        ap = AnthropicProvider.__new__(AnthropicProvider)
-        prompt = ap._build_prompt(findings, scan_info)
+        prompt = self._build_prompt(findings, scan_info)
         try:
             resp = requests.post(f"{self.base_url}?key={self.api_key}",
                 headers={"Content-Type": "application/json"},
@@ -49,6 +46,6 @@ class GeminiProvider(BaseAIProvider):
             if resp.status_code != 200:
                 return {"error": f"API error: {resp.status_code}"}
             content = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
-            return ap._parse_response(content)
+            return self._parse_response(content)
         except Exception as e:
             return {"error": str(e)}
