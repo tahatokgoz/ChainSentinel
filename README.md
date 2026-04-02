@@ -12,7 +12,7 @@ ChainSentinel is a specialized penetration testing tool designed for warehouse a
 
 - **Automatic Network Discovery** — Scans your LAN, discovers devices, and classifies them (IoT, Web Portal, API)
 - **One-Click Pentesting** — Run security tests on all discovered devices with a single click
-- **18 Security Checks** — SQL Injection, Command Injection, IDOR, Brute Force, Default Credentials, Session Vulnerabilities, and more
+- **42+ Security Checks** — SQL Injection, Command Injection, IDOR, Brute Force, Default Credentials, Session Vulnerabilities, XSS, CSRF, SSL/TLS Analysis, and more
 - **AI-Powered Analysis** — Supports Claude, GPT, Gemini, and Ollama for intelligent vulnerability analysis
 - **Attack Chain Detection** — AI identifies how vulnerabilities can be chained together
 - **MITRE ATT&CK Mapping** — Automatically maps findings to the MITRE framework
@@ -72,29 +72,65 @@ ChainSentinel includes an MCP server for Claude Desktop integration. See [README
 
 ## Security Checks
 
-### IoT Device (6 checks)
-- Open Ports Detection
-- Default Credentials (HTTP)
-- Default Credentials (Telnet)
-- Unauthenticated Sensor Data Access
-- Device Information Disclosure
-- Command Injection
+ChainSentinel performs **42+ automated security checks** across 7 scanner modules:
 
-### Web Portal (6 checks)
-- SQL Injection (Authentication Bypass)
-- Brute Force Protection
-- Weak Session Tokens
-- Session Fixation
-- Debug Mode / Information Disclosure
-- Backup Admin Credentials
+### IoT Device Scanner (8 checks)
+| Check | Severity | CVSS |
+|-------|----------|------|
+| Open Ports Detection | Medium | 5.3 |
+| Default Credentials (HTTP) | Critical | 9.8 |
+| Default Credentials (Telnet) | Critical | 9.8 |
+| Unauthenticated Sensor Data Access | High | 7.5 |
+| Sensitive Information Disclosure | Medium | 5.3 |
+| Command Injection | Critical | 10.0 |
+| Directory Traversal | High | 7.5 |
+| Missing Security Headers | Low | 3.7 |
 
-### API (6 checks)
-- SQL Injection (Search)
-- IDOR (Unauthorized Access)
-- API Key in URL
-- Rate Limiting
-- Mass Assignment
-- Input Validation
+### Web Portal Scanner (12 checks)
+| Check | Severity | CVSS |
+|-------|----------|------|
+| SQL Injection (Auth Bypass) | Critical | 9.8 |
+| No Brute Force Protection | Medium | 5.3 |
+| Weak Session Tokens | High | 7.5 |
+| Session Fixation | High | 7.5 |
+| Debug Mode / Info Disclosure | Medium | 5.3 |
+| Exposed Sensitive Files | High | 7.2 |
+| Reflected XSS | High | 6.1 |
+| Missing CSRF Protection | Medium | 4.3 |
+| Missing Security Headers | Medium | 5.3 |
+| Insecure Cookie Configuration | Medium | 5.3 |
+| Directory Traversal | High | 7.5 |
+| Unrestricted File Upload | High | 7.5 |
+
+### API Scanner (8 checks)
+| Check | Severity | CVSS |
+|-------|----------|------|
+| SQL Injection (Boolean-based) | Critical | 9.8 |
+| IDOR - Unauthorized Access | High | 7.5 |
+| API Key in URL Parameter | Medium | 5.3 |
+| No Rate Limiting | Medium | 5.3 |
+| Mass Assignment | High | 7.5 |
+| Missing Input Validation | Low | 3.7 |
+| CORS Misconfiguration | Medium | 5.3 |
+| Missing Security Headers | Low | 3.7 |
+
+### MQTT Scanner (4 checks)
+| Check | Severity | CVSS |
+|-------|----------|------|
+| Anonymous Access | Critical | 9.1 |
+| Default Credentials | Critical | 9.8 |
+| Wildcard Topic Subscription | High | 7.5 |
+| Broker Version Disclosure | Low | 3.7 |
+
+### Protocol Scanner (6 checks)
+| Check | Severity | CVSS |
+|-------|----------|------|
+| Modbus Unauthenticated Access | Critical | 9.8 |
+| SNMP Default Community String | High | 7.5 |
+| FTP Anonymous/Default Access | High | 7.5 |
+| DNS Zone Transfer | Medium | 5.3 |
+| Open Redirect | Medium | 4.7 |
+| SSL/TLS Configuration Issues | Medium | 5.3 |
 
 ## Tech Stack
 

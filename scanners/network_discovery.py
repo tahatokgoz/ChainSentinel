@@ -1,7 +1,10 @@
 import logging
 import socket
 
-import nmap
+try:
+    import nmap
+except ImportError:
+    nmap = None
 
 logger = logging.getLogger(__name__)
 
@@ -76,33 +79,74 @@ class NetworkDiscovery:
         return hosts
 
     def scan_host_ports(self, host: str, ports: str = "20-1000,2323,8080-8090,9080-9090") -> list[dict]:
-        """Scan ports of a specific host."""
+        """Scan ports of a specific host. Runs twice for reliability."""
         if not self.available:
             return []
 
         logger.info(f"Port scan: {host} (ports: {ports})")
 
+        all_ports = {}
+
+        # First scan
         try:
             self.nm.scan(hosts=host, ports=ports, arguments="-sT -T4")
-        except nmap.PortScannerError as e:
-            logger.error(f"Port scan failed: {e}")
-            return []
+            if host in self.nm.all_hosts():
+                for proto in self.nm[host].all_protocols():
+                    for port in self.nm[host][proto]:
+                        info = self.nm[host][proto][port]
+                        if info["state"] == "open":
+                            all_ports[port] = {
+                                "port": port,
+                                "protocol": proto,
+                                "state": "open",
+                                "service": info.get("name", "unknown"),
+                                "product": info.get("product", ""),
+                                "version": info.get("version", ""),
+                            }
+        except Exception as e:
+            logger.error(f"First port scan failed: {e}")
 
-        open_ports = []
-        if host in self.nm.all_hosts():
-            for proto in self.nm[host].all_protocols():
-                for port in self.nm[host][proto]:
-                    info = self.nm[host][proto][port]
-                    if info["state"] == "open":
-                        open_ports.append({
+        # Second scan for verification and catching missed ports
+        try:
+            self.nm.scan(hosts=host, ports=ports, arguments="-sT -T3")
+            if host in self.nm.all_hosts():
+                for proto in self.nm[host].all_protocols():
+                    for port in self.nm[host][proto]:
+                        info = self.nm[host][proto][port]
+                        if info["state"] == "open" and port not in all_ports:
+                            all_ports[port] = {
+                                "port": port,
+                                "protocol": proto,
+                                "state": "open",
+                                "service": info.get("name", "unknown"),
+                                "product": info.get("product", ""),
+                                "version": info.get("version", ""),
+                            }
+        except Exception as e:
+            logger.error(f"Second port scan failed: {e}")
+
+        # Third pass: socket check for critical warehouse ports that Nmap might miss
+        critical_ports = [23, 80, 443, 2323, 8080, 8081, 8082, 8083, 8443, 9081, 9082, 9083, 9084, 1883, 3000, 5000, 8000]
+        for port in critical_ports:
+            if port not in all_ports:
+                try:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.settimeout(2)
+                    result = sock.connect_ex((host, port))
+                    sock.close()
+                    if result == 0:
+                        all_ports[port] = {
                             "port": port,
-                            "protocol": proto,
-                            "state": info["state"],
-                            "service": info.get("name", "unknown"),
-                            "product": info.get("product", ""),
-                            "version": info.get("version", ""),
-                        })
+                            "protocol": "tcp",
+                            "state": "open",
+                            "service": "unknown",
+                            "product": "",
+                            "version": "",
+                        }
+                except socket.error:
+                    pass
 
+        open_ports = sorted(all_ports.values(), key=lambda x: x["port"])
         logger.info(f"{host}: {len(open_ports)} open ports found.")
         return open_ports
 
@@ -119,49 +163,37 @@ class NetworkDiscovery:
         return hosts
 
     def _classify_device(self, host: dict) -> str:
-        """Classify device based on port and service information."""
+        """Classify device based on ports and services."""
         ports = host.get("ports", [])
         port_numbers = [p["port"] for p in ports]
         services = [p["service"].lower() for p in ports]
 
-        # IoT device indicators
-        iot_indicators = 0
-        if 2323 in port_numbers:  # Telnet (common in IoT)
-            iot_indicators += 2
-        if 23 in port_numbers:  # Standard Telnet
-            iot_indicators += 2
-        if any(s in services for s in ["telnet", "mqtt", "coap"]):
-            iot_indicators += 2
-        if any(p in port_numbers for p in [1883, 5683, 8883]):  # MQTT, CoAP
-            iot_indicators += 2
-        if any(p in port_numbers for p in range(8080, 8091)):  # Embedded web panel
-            iot_indicators += 1
+        categories = []
+
+        # IoT indicators
+        if any(p in port_numbers for p in [23, 2323]) or any(s in services for s in ["telnet", "mqtt", "coap"]):
+            categories.append("iot_device")
+        if any(p in port_numbers for p in [1883, 5683, 8883, 8081, 9081]):
+            categories.append("iot_device")
 
         # Web portal indicators
-        web_indicators = 0
-        if 80 in port_numbers or 443 in port_numbers:
-            web_indicators += 2
-        if any(s in services for s in ["http", "https"]):
-            web_indicators += 1
-        if any(p in port_numbers for p in [8080, 8443, 3000, 5000]):
-            web_indicators += 1
+        if any(p in port_numbers for p in [80, 443, 8080, 8082, 8443, 9082]):
+            categories.append("web_portal")
+        if any(s in services for s in ["http", "https", "http-proxy"]):
+            if "web_portal" not in categories:
+                categories.append("web_portal")
 
         # API indicators
-        api_indicators = 0
-        if any(p in port_numbers for p in range(9080, 9091)):
-            api_indicators += 1
-        if any(p in port_numbers for p in [3000, 5000, 8000, 8080]):
-            api_indicators += 1
+        if any(p in port_numbers for p in [3000, 5000, 8000, 8083, 8084, 9083, 9084]):
+            categories.append("api_service")
 
-        # Classify by highest score
-        scores = {
-            "iot_device": iot_indicators,
-            "web_portal": web_indicators,
-            "api_service": api_indicators,
-        }
+        # Remove duplicates
+        categories = list(dict.fromkeys(categories))
 
-        max_score = max(scores.values())
-        if max_score == 0:
+        if not categories:
             return "unknown"
+        if len(categories) == 1:
+            return categories[0]
 
-        return max(scores, key=scores.get)
+        # Multiple categories - return comma separated
+        return ",".join(categories)
