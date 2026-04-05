@@ -8,6 +8,20 @@ ChainSentinel is a specialized penetration testing tool designed for warehouse a
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
+## Screenshots
+
+### Security Dashboard
+![Dashboard](chainsentinel_screenshots/dashboard.png)
+
+### Vulnerability Findings
+![Findings](chainsentinel_screenshots/findings.png)
+
+### AI-Powered Attack Chain Analysis
+![AI Analysis](chainsentinel_screenshots/ai-analysis.png)
+
+### MITRE ATT&CK Mapping & Prioritization
+![MITRE Mapping](chainsentinel_screenshots/mitre-mapping.png)
+
 ## Features
 
 - **Automatic Network Discovery** — Scans your LAN, discovers devices, and classifies them (IoT, Web Portal, API)
@@ -139,10 +153,6 @@ ChainSentinel performs **42+ automated security checks** across 7 scanner module
 - **Scanning:** Nmap, Custom Python scanners
 - **AI:** Anthropic Claude, OpenAI GPT, Google Gemini, Ollama
 - **Reporting:** ReportLab (PDF)
-
-## Screenshots
-
-*Coming soon*
 
 ## Disclaimer
 
